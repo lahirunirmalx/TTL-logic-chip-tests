@@ -1,0 +1,80 @@
+ 
+// 74LS244NA Test with Arduino
+// This code will:
+
+//* Enable both buffers.
+//* Cycle through all 8 input lines.
+//* Write HIGH/LOW values.
+//* Read the corresponding outputs.
+//* Print the test result to Serial Monitor.
+
+int enable1 = 2;
+int enable2 = 3;
+
+// Inputs A0-A7
+int inputs[8] = {4, 5, 6, 7, 8, 9, 10, 11};
+
+// Outputs Y0-Y7
+int outputs[8] = {A0, A1, A2, A3, A4, A5, A6, A7};
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Starting 74LS244 Test...");
+
+  // Setup enable pins
+  pinMode(enable1, OUTPUT);
+  pinMode(enable2, OUTPUT);
+  digitalWrite(enable1, LOW);  // enable outputs
+  digitalWrite(enable2, LOW);
+
+  // Setup input pins
+  for (int i = 0; i < 8; i++) {
+    pinMode(inputs[i], OUTPUT);
+  }
+
+  // Setup output pins
+  for (int i = 0; i < 8; i++) {
+    pinMode(outputs[i], INPUT);
+  }
+
+  delay(100);
+}
+
+void loop() {
+  bool allPass = true;
+
+  Serial.println("Testing each channel...");
+
+  for (int i = 0; i < 8; i++) {
+    // Test LOW
+    digitalWrite(inputs[i], LOW);
+    delay(5);
+    int readLow = digitalRead(outputs[i]);
+    if (readLow != LOW) {
+      Serial.print("FAIL at channel ");
+      Serial.print(i);
+      Serial.println(" (Expected LOW)");
+      allPass = false;
+    }
+
+    // Test HIGH
+    digitalWrite(inputs[i], HIGH);
+    delay(5);
+    int readHigh = digitalRead(outputs[i]);
+    if (readHigh != HIGH) {
+      Serial.print("FAIL at channel ");
+      Serial.print(i);
+      Serial.println(" (Expected HIGH)");
+      allPass = false;
+    }
+  }
+
+  if (allPass) {
+    Serial.println("✅ All channels OK!");
+  } else {
+    Serial.println("❌ Some channels FAILED!");
+  }
+
+  Serial.println("----");
+  delay(2000);  // repeat test every 2s
+}
